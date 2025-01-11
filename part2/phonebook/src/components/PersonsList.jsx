@@ -1,5 +1,9 @@
-export const PersonsList = ({ persons }) => {
+const Person = ({ person, handleClick }) => {
+  return <div>{person.name} {person.number} <button onClick={handleClick}>delete</button></div>
+}
+
+export const PersonsList = ({ persons, handleDeletion }) => {
   return <>
-    {persons.map(person => <div key={person.name}>{person.name} {person.number}</div>)}
+    {persons.map(person => <Person key={person.id} person={person} handleClick={() => handleDeletion(person)}/>)}
   </>;
 };
