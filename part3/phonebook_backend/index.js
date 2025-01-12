@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
 
 let persons = [
     {
@@ -25,6 +26,12 @@ let persons = [
 ]
 
 app.use(express.json())
+morgan.token('request-body', function (req, res) {
+    return JSON.stringify(req.body)
+})
+const customMorganFormat = ':method :url :status :res[content-length] - :response-time ms :request-body'
+morgan.format('customMorganFormat', customMorganFormat)
+app.use(morgan('customMorganFormat'))
 
 app.get('/api/persons', (request, response) => {
     response.send(persons)
@@ -63,13 +70,13 @@ const generatePersonId = () => {
 
 const validatePerson = (person) => {
     if (!person) {
-        return { error: 'request body must not be empty' }
+        return {error: 'request body must not be empty'}
     } else if (!person.name) {
-        return { error: 'name must not be empty' }
+        return {error: 'name must not be empty'}
     } else if (!person.number) {
-        return {error: 'number must not be empty' }
+        return {error: 'number must not be empty'}
     } else if (persons.find(p => p.name.toLowerCase() === person.name.toLowerCase())) {
-        return { error: 'name must be unique' }
+        return {error: 'name must be unique'}
     } else {
         return null
     }
