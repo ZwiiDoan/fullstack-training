@@ -9,9 +9,7 @@ const App = () => {
   const [persons, setPersons] = useState([])
 
   useEffect(() => {
-    personService.getAll().then(data => {
-      setPersons(data)
-    })
+    refreshPersons()
   }, [])
 
   const [newPerson, setNewPerson] = useState({
@@ -22,6 +20,42 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState('')
   const [infoMessage, setInfoMessage] = useState('')
 
+  const refreshPersons = () => {
+    personService.getAll().then(data => {
+      setPersons(data)
+    }).catch(error => {
+      console.log(error)
+      showErrorMessage(error.response.data.message)
+    })
+  }
+
+  const showErrorMessage = (message) => {
+    setErrorMessage(message)
+    setTimeout(() => {
+      setErrorMessage(null)
+    }, 5000)
+  }
+
+  const showInfoMessage = (message) => {
+    setInfoMessage(message)
+    setTimeout(() => {
+      setInfoMessage(null)
+    }, 5000)
+  }
+
+  const handleError = (error) => {
+    console.log(error)
+    showErrorMessage(error.response.data.message)
+    personService.getAll().then(data => {
+      setPersons(data)
+    })
+  }
+
+  const handleSuccess = (message) => {
+    showInfoMessage(message)
+    refreshPersons()
+  }
+
   const handlePersonFormSubmit = (event) => {
     event.preventDefault()
     const existingPerson = persons.find(p => p.name === newPerson.name)
@@ -29,28 +63,19 @@ const App = () => {
     if (existingPerson) {
       if (window.confirm(`${existingPerson.name} is already added to phonebook, replace old number with a new one?`)) {
         personService.update(existingPerson.id, newPerson).then(updatedPerson => {
-          setPersons(persons.filter(p => p.id !== updatedPerson.id).concat(updatedPerson))
-          showInfoMessage(`Updated ${updatedPerson.name}`)
+          handleSuccess(`Updated ${updatedPerson.name}`)
           setNewPerson({
             name: '', number: ''
           })
-        }).catch(error => {
-          console.log(error)
-          showErrorMessage(`Information of ${existingPerson.name} has already been removed from server`)
-          setPersons(persons.filter(p => p.id !== existingPerson.id))
-        })
+        }).catch(error => handleError(error))
       }
     } else {
       personService.create(newPerson).then(createdPerson => {
-        setPersons(persons.concat(createdPerson))
+        handleSuccess(`Created ${createdPerson.name}`)
         setNewPerson({
           name: '', number: ''
         })
-        showInfoMessage(`Created ${createdPerson.name}`)
-      }).catch(error => {
-        console.log(error)
-        showErrorMessage(`Failed to create ${newPerson.name}`)
-      })
+      }).catch(error => handleError(error))
     }
   }
 
@@ -68,29 +93,10 @@ const App = () => {
 
   const handleDeletion = (person) => {
     if (window.confirm(`Delete ${person.name} ?`)) {
-      personService.deleteById(person.id).then(deletedPersonId => {
-        setPersons(persons.filter(p => p.id !== deletedPersonId))
-        showInfoMessage(`Deleted ${person.name}`)
-      }).catch(error => {
-        console.log(error)
-        showErrorMessage(`Information of ${person.name} has already been removed from server`)
-        setPersons(persons.filter(p => p.id !== person.id))
-      })
+      personService.deleteById(person.id).then(() => {
+        handleSuccess(`Deleted ${person.name}`)
+      }).catch(error => handleError(error))
     }
-  }
-
-  const showErrorMessage = (message) => {
-    setErrorMessage(message)
-    setTimeout(() => {
-      setErrorMessage(null)
-    }, 5000)
-  }
-
-  const showInfoMessage = (message) => {
-    setInfoMessage(message)
-    setTimeout(() => {
-      setInfoMessage(null)
-    }, 5000)
   }
 
   const personsToShow = nameFilter ? persons.filter(p => p.name.toLowerCase().includes(nameFilter.toLowerCase())) : persons

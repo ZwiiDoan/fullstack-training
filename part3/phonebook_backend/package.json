@@ -9,7 +9,8 @@
     "build:ui": "@powershell Remove-Item -Recurse -Force dist && cd ../phonebook_frontend && npm run build && @powershell Copy-Item dist -Recurse ../phonebook_backend",
     "deploy": "fly deploy",
     "deploy:full": "npm run build:ui && npm run deploy",
-    "logs:prod": "fly logs"
+    "logs:prod": "fly logs",
+    "lint": "eslint --fix ."
   },
   "author": "Zwii Doan",
   "license": "ISC",
@@ -22,7 +23,11 @@
     "morgan": "^1.10.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.19.0",
     "@flydotio/dockerfile": "^0.7.0",
+    "@stylistic/eslint-plugin-js": "^3.0.0",
+    "eslint": "^9.19.0",
+    "globals": "^15.14.0",
     "nodemon": "^3.1.9"
   }
 }
