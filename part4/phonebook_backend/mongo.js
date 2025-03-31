@@ -1,5 +1,7 @@
+const logger = require('./utils/logger')
+
 if (process.argv.length !== 3 && process.argv.length !== 5) {
-  console.log('Usage: node mongo.js {password} [{name} {number}]')
+  logger.info('Usage: node mongo.js {password} [{name} {number}]')
   process.exit(1)
 }
 
@@ -17,16 +19,18 @@ const personSchema = new mongoose.Schema({
 const Person = mongoose.model('Person', personSchema)
 
 mongoose.connect(dbUrl).then(() => {
-  console.log('db connection established')
+  logger.info('db connection established')
   main()
+}).catch(error => {
+  logger.error('error connecting to MongoDB:', error.message)
 })
 
 const main = () => {
   if (process.argv.length === 3) {
-    console.log('phonebook:')
+    logger.info('phonebook:')
     Person.find({}).then(result => {
-      result.forEach(person => console.log(person))
-      mongoose.connection.close().then(() => console.log('db connection closed'))
+      result.forEach(person => logger.info(person))
+      mongoose.connection.close().then(() => logger.info('db connection closed'))
     })
   } else if (process.argv.length === 5) {
     const person = new Person({
@@ -35,8 +39,8 @@ const main = () => {
     })
 
     person.save().then(() => {
-      console.log(`added ${person.name} number ${person.number} to phonebook`)
-      mongoose.connection.close().then(() => console.log('db connection closed'))
+      logger.info(`added ${person.name} number ${person.number} to phonebook`)
+      mongoose.connection.close().then(() => logger.info('db connection closed'))
     })
   }
 }
