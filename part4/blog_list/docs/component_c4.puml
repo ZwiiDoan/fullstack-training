@@ -1,0 +1,30 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+LAYOUT_WITH_LEGEND()
+
+' System Context
+Person(dev, "Developer", "Works on the blog list app")
+System_Boundary(bloglist, "Blog List Application") {
+  Container(indexjs, "index.js", "Node.js", "Entry point, starts the server")
+  Container(appjs, "app.js", "Express App", "Configures middleware, routers, and app settings")
+  Container(router, "routers/blog.js", "Express Router", "Handles blog API endpoints")
+  Container(model, "models/blog.js", "Mongoose Model", "Blog schema and DB access")
+  Container(middleware, "middleware/*", "Express Middleware", "Logging, validation, error handling")
+  Container(utils, "utils/*", "Utility Modules", "Helpers for config, logging, analytics")
+  Container(test, "tests/*.js", "Test Suites", "Automated tests for helpers and API")
+}
+
+Rel(dev, indexjs, "runs")
+Rel(indexjs, appjs, "loads")
+Rel(appjs, router, "uses")
+Rel(appjs, middleware, "uses")
+Rel(appjs, utils, "uses")
+Rel(router, model, "uses")
+Rel(router, middleware, "uses for validation")
+Rel(model, utils, "uses config")
+Rel(middleware, utils, "uses logger/config")
+Rel(test, utils, "tests helpers")
+Rel(test, router, "tests API")
+
+@enduml
