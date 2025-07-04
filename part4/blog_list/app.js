@@ -3,11 +3,14 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 const blogRouter = require('./routers/blog')
+const userRouter = require('./routers/user')
 const logger = require('./utils/logger')
 const mongoose = require('mongoose')
 const unknownEndpoint = require('./middleware/unknownEndpoint')
 const errorHandler = require('./middleware/errorHandler')
 const customMorgan = require('./middleware/customMorgan')
+const loginRouter = require('./routers/login')
+
 
 mongoose.set('strictQuery', false)
 
@@ -27,6 +30,8 @@ app.use(express.json())
 app.use(customMorgan)
 
 app.use('/api/blogs', blogRouter)
+app.use('/api/users', userRouter)
+app.use('/api/login', loginRouter)
 
 app.use(unknownEndpoint)
 app.use(errorHandler)
